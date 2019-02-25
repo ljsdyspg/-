@@ -1,0 +1,82 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PID获取</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        img {
+            float: left;
+        }
+        body {
+            width: 8230px;
+        }
+        #container {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        div {
+            display: block;
+        }
+        canvas {
+            border: 2px solid blue;
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=CTAp7xajfmQwdT5R9GuQ60XUhTF27z3x">
+    </script>
+    <script src="http://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://superal.github.io/canvas2image/canvas2image.js"></script>
+</head>
+<body>
+<div style="width: 800px; left: 0;">
+    <div class="input-group">
+        <textarea style="left: auto" name="" id="textarea" cols="100" rows="5"></textarea>
+        <textarea style="left: auto" name="" id="textarea2" cols="100" rows="5"></textarea>
+        <span id="sum_info" class="input-group-addon">将经纬度粘贴到左上边文本框里，再开始批量获取，按F12打开控制台查看进度</span>
+    </div>
+</div>
+<br/>
+<div>
+    <button id="btn-download" type="button" class="btn btn-primary" onclick="start()">开始获取</button>
+    <label id="info"></label>
+</div>
+<div id="svInfoText"></div>
+<script type="text/javascript">
+    var panoramaService = new BMap.PanoramaService();
+    var count = 0;
+    function request(lng,lat) {
+        point = new BMap.Point(lng,lat);
+        panoramaService.getPanoramaByLocation(point, function(data){
+            var panoramaInfo="";
+            if (data == null) {
+                console.log('no data');
+                console.log(count++);
+                return;
+            }
+            console.log(count++);
+            panoramaInfo +='全景id为：'+data.id;
+            panoramaInfo +='<br/>全景路段名为：'+data.description+'\n';
+            panoramaInfo +='<br/>坐标为：'+data.position.lng+':'+data.position.lat+'\n';
+            document.getElementById('textarea2').value += data.position.lng+','+data.position.lat+'\n';
+            document.getElementById('textarea2').value += data.id+'\n';
+            console.log(panoramaInfo);
+            document.getElementById('svInfoText').innerHTML= panoramaInfo;
+        });
+    }
+
+    function start() {
+        content = $("#textarea").val().split('\n');
+        $("#textarea").val('');
+        sum = content.length;
+        console.log("总数为：" + sum);
+        for (i = 0; i < sum; i++) {
+            lng = content[i].split(',')[0];
+            lat = content[i].split(',')[1];
+            request(lng, lat);
+        }
+    }
+
+</script>
+</body>
+</html>
